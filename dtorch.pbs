@@ -1,7 +1,9 @@
 #!/bin/bash
 
+#Set up the PBS environment
+
 #PBS -P Training 
-#PBS -N Cuda10
+#PBS -N Cuda10Sing
 #PBS -l select=1:ncpus=2:ngpus=1:mem=1gb
 #PBS -l walltime=0:05:00
 
