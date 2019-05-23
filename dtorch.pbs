@@ -16,4 +16,7 @@ cd $PBS_O_WORKDIR
 singularity exec --nv dtorch.img python -c 'import torch; print(torch.cuda.current_device())'
 
 #A Typical call to python looks like this
-#singularity exec --nv dtorch.img python myscript.py
+#singularity exec --nv dtorch.img python testGPU.py
+
+#To launch an interactive terminal inside the container and also mount the current directory in the container
+#singularity shell -B `pwd` --nv dtorch.img
