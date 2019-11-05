@@ -1,10 +1,13 @@
 Bootstrap: docker
-From: nvidia/cuda:10.0-devel
+From: ubuntu:16.04
 
 %setup
 mkdir ${SINGULARITY_ROOTFS}/workspace
 
 %files
+    nccl-repo-ubuntu1604-2.4.8-ga-cuda10.1_1-1_amd64.deb /workspace
+    nccl-repo-ubuntu1604-2.4.8-ga-cuda10.0_1-1_amd64.deb /workspace
+   
 %labels
     Maintainer nathaniel.butterworth 
     at the Sydney Informatics Hub
@@ -15,22 +18,44 @@ mkdir ${SINGULARITY_ROOTFS}/workspace
 
 %post
 mkdir /project /scratch
+touch /usr/bin/nvidia-smi
 
 #Now install everythin
 apt update && apt install -y curl 
 
-curl -LO http://repo.continuum.io/miniconda/Miniconda3-4.5.12-Linux-x86_64.sh
-bash Miniconda3-4.5.12-Linux-x86_64.sh -p /miniconda -b
-rm Miniconda3-4.5.12-Linux-x86_64.sh
-PATH=/miniconda/bin:${PATH}
+curl -LO https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
+bash Anaconda3-2019.10-Linux-x86_64.sh -p /anaconda -b
+rm Anaconda3-2019.10-Linux-x86_64.sh
+PATH=/anaconda/bin:${PATH}
 
 conda update -y conda
-conda install -y pytorch torchvision cudatoolkit=10.0 -c pytorch
+conda install -y pytorch torchvision cudatoolkit=10.1 -c pytorch
+apt-get update
+apt-get install -y git-core sudo wget
+git config --global user.name "Olimon660"
+git config --global user.email "zhaoxiang.cai@hotmail.com"
+
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-ubuntu1604.pin
+mv cuda-ubuntu1604.pin /etc/apt/preferences.d/cuda-repository-pin-600
+wget http://developer.download.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda-repo-ubuntu1604-10-1-local-10.1.243-418.87.00_1.0-1_amd64.deb
+dpkg -i cuda-repo-ubuntu1604-10-1-local-10.1.243-418.87.00_1.0-1_amd64.deb
+apt-key add /var/cuda-repo-10-1-local-10.1.243-418.87.00/7fa2af80.pub
+apt-get update
+apt-get -y install cuda
+
+#wget https://developer.nvidia.com/compute/machine-learning/nccl/secure/v2.4/prod/nccl-repo-ubuntu1604-2.4.8-ga-cuda10.1_1-1_amd64.deb
+#dpkg -i nccl-repo-ubuntu1604-2.4.8-ga-cuda10.1_1-1_amd64.deb
+#apt-get install -f -y
 
 cd /workspace
+git clone -q https://github.com/open-mmlab/mmdetection.git
+cd mmdetection
+export CUDA_HOME=/usr/local/cuda
+#python setup.py develop
+pip install -v -e .
 
 %environment
-export PATH=/miniconda/bin:${PATH}
+export PATH=/anaconda/bin:${PATH}
 
 
 %runscript

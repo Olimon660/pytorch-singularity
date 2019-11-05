@@ -9,7 +9,7 @@
 
 #Load the modules we need
 module load singularity
-module load cuda/10.0.130
+module load cuda/10.1.105
 
 #Change to the directory you qsub-ed this pbs script
 cd $PBS_O_WORKDIR
