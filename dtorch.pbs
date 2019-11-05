@@ -2,20 +2,19 @@
 
 #Set up the PBS environment
 
-#PBS -P Training 
-#PBS -N Cuda10Sing
-#PBS -l select=1:ncpus=2:ngpus=1:mem=1gb
+#PBS -P RDS-FMH-CWGS_2-RW
+#PBS -l select=1:ncpus=1:ngpus=1:mem=1gb
 #PBS -l walltime=0:05:00
 
 #Load the modules we need
 module load singularity
-module load cuda/10.1.105
+module load cuda/10.0.130
 
 #Change to the directory you qsub-ed this pbs script
-cd $PBS_O_WORKDIR
+cd /scratch/RDS-FMH-CWGS_2-RW/images/
 
 #Run the container, call python, and test pytorch
-singularity exec --nv dtorch.img python -c 'import torch; print(torch.cuda.current_device())'
+singularity exec --nv pytorch.img python -c 'import torch;import mmcv;from mmdet.apis import init_detector, inference_detector, show_result; print(torch.cuda.get_device_name())'
 
 #A Typical call to python looks like this
 #singularity exec --nv dtorch.img python testGPU.py
