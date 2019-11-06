@@ -14,7 +14,8 @@ module load cuda/10.0.130
 cd /scratch/RDS-FMH-CWGS_2-RW/images/
 
 #Run the container, call python, and test pytorch
-singularity exec --nv pytorch.img python -c 'import torch;import mmcv;from mmdet.apis import init_detector, inference_detector, show_result; print(torch.cuda.get_device_name())'
+SINGULARITYENV_PYTHONPATH=/scratch/RDS-FMH-CWGS_2-RW/images/kfbreader-linux:$PYTHONPATH SINGULARITYENV_LD_LIBRARY_PATH=/anaconda/lib:/scratch/RDS-FMH-CWGS_2-RW/images/kfbreader-linux:$LD_LIBRARY_PATH singularity exec --nv pytorch_cuda10.img python -c 'import torch;import mmcv;from mmdet.apis import init_detector, inference_detector, show_result; print(torch.cuda.get_device_name())'
+SINGULARITYENV_PYTHONPATH=/scratch/RDS-FMH-CWGS_2-RW/images/kfbreader-linux:$PYTHONPATH SINGULARITYENV_LD_LIBRARY_PATH=/anaconda/lib:/scratch/RDS-FMH-CWGS_2-RW/images/kfbreader-linux:$LD_LIBRARY_PATH singularity exec --nv pytorch_cuda10.img python -c 'import kfbReader; print(kfbReader.__file__)'
 
 #A Typical call to python looks like this
 #singularity exec --nv dtorch.img python testGPU.py
