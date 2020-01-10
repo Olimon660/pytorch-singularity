@@ -1,0 +1,63 @@
+Bootstrap: docker
+From: ubuntu:16.04
+
+%setup
+mkdir ${SINGULARITY_ROOTFS}/workspace
+
+%files
+selections.conf /selections.conf
+
+%labels
+    Maintainer nathaniel.butterworth 
+    at the Sydney Informatics Hub
+    Version v1.0
+    Build with:
+    sudo singularity build --writable dtorch.img dtorch.txt
+    singularity exec --nv dtorch.img python
+
+%post
+mkdir /project /scratch
+touch /usr/bin/nvidia-smi
+
+#Now install everythin
+apt update && apt install -y curl 
+
+curl -LO https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
+bash Anaconda3-2019.10-Linux-x86_64.sh -p /anaconda -b
+rm Anaconda3-2019.10-Linux-x86_64.sh
+PATH=/anaconda/bin:${PATH}
+
+PATH=/anaconda/bin:${PATH}
+export PATH=/anaconda/bin:${PATH}
+apt-get update
+apt-get install -y git-core sudo wget
+git config --global user.name "Olimon660"
+git config --global user.email "zhaoxiang.cai@hotmail.com"
+
+apt install debconf-utils
+debconf-set-selections /selections.conf
+
+DEBIAN_FRONTEND=noninteractive
+export DEBIAN_FRONTEND=noninteractive
+
+wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64
+sudo dpkg -i cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64
+sudo apt-key add /var/cuda-repo-10-0-local-10.0.130-410.48/7fa2af80.pub
+sudo apt-get update
+sudo apt-get -y install cuda
+
+conda install -y pytorch==1.2.0 torchvision==0.4.0 cudatoolkit=10.0 -c pytorch
+
+cd /workspace
+git clone -q https://github.com/open-mmlab/mmdetection.git
+cd mmdetection
+#export CUDA_HOME=/usr/local/cuda
+which python
+#python setup.py develop
+pip install --no-cache-dir -e .
+
+%environment
+export PATH=/anaconda/bin:${PATH}
+
+%runscript
+exec /bin/bash "$@"
